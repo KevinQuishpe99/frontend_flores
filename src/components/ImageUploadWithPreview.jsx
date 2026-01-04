@@ -41,19 +41,26 @@ export default function ImageUploadWithPreview({
   };
 
   const handleEditorSave = (editedImageDataUrl) => {
-    // Convertir data URL a File
-    fetch(editedImageDataUrl)
-      .then(res => res.blob())
-      .then(blob => {
-        const file = new File([blob], 'imagen-editada.jpg', { type: 'image/jpeg' });
-        setPreview(editedImageDataUrl);
-        setShowEditor(false);
-        onImageSelect(file, editedImageDataUrl);
-      })
-      .catch(err => {
-        console.error('Error al procesar imagen:', err);
-        setShowEditor(false);
-      });
+    // Convertir data URL a File sin usar fetch (para evitar CSP)
+    try {
+      // Convertir data URL a blob directamente
+      const byteString = atob(editedImageDataUrl.split(',')[1]);
+      const mimeString = editedImageDataUrl.split(',')[0].split(':')[1].split(';')[0];
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      const blob = new Blob([ab], { type: mimeString });
+      const file = new File([blob], 'imagen-editada.jpg', { type: 'image/jpeg' });
+      
+      setPreview(editedImageDataUrl);
+      setShowEditor(false);
+      onImageSelect(file, editedImageDataUrl);
+    } catch (err) {
+      console.error('Error al procesar imagen:', err);
+      setShowEditor(false);
+    }
   };
 
   const handleEditorCancel = () => {

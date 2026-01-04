@@ -112,8 +112,15 @@ export default function FloristaArreglos() {
       data.append('imagenEditada', imagenEditada);
       // También enviar como archivo para compatibilidad (el backend priorizará imagenEditada)
       try {
-        const response = await fetch(imagenEditada);
-        const blob = await response.blob();
+        // Convertir data URL a blob sin usar fetch (para evitar CSP)
+        const byteString = atob(imagenEditada.split(',')[1]);
+        const mimeString = imagenEditada.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
+        }
+        const blob = new Blob([ab], { type: mimeString });
         const file = new File([blob], 'imagen-editada.jpg', { type: 'image/jpeg' });
         data.append('imagen', file);
       } catch (error) {
