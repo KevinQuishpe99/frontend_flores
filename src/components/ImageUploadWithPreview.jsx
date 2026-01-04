@@ -97,21 +97,21 @@ export default function ImageUploadWithPreview({
       </label>
 
       {preview ? (
-        <div className="relative group">
-          <div className="relative rounded-lg overflow-hidden border-2 border-gray-200">
+        <div className="relative group flex justify-center">
+          <div className="relative w-48 h-32 rounded-lg overflow-hidden border-2 border-gray-200">
             <img
               src={preview}
               alt="Preview"
-              className="w-full h-64 object-cover"
+              className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center gap-3">
+            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center gap-2">
               <button
                 type="button"
                 onClick={handleEdit}
                 className="opacity-0 group-hover:opacity-100 bg-white text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-all transform hover:scale-110"
                 title="Editar imagen"
               >
-                <PencilIcon className="w-5 h-5" />
+                <PencilIcon className="w-4 h-4" />
               </button>
               <button
                 type="button"
@@ -119,7 +119,7 @@ export default function ImageUploadWithPreview({
                 className="opacity-0 group-hover:opacity-100 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-all transform hover:scale-110"
                 title="Eliminar imagen"
               >
-                <XMarkIcon className="w-5 h-5" />
+                <XMarkIcon className="w-4 h-4" />
               </button>
             </div>
           </div>

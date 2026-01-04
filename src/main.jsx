@@ -13,6 +13,8 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
+      staleTime: 0, // Los datos se consideran obsoletos inmediatamente
+      cacheTime: 5 * 60 * 1000, // Cache por 5 minutos
     },
   },
 })

@@ -3,10 +3,11 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { login, register } from '../api/auth';
 import toast from 'react-hot-toast';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, EyeSlashIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import CountryCodeSelector from '../components/CountryCodeSelector';
 import { normalizarTelefono } from '../utils/phoneUtils';
 import GoogleLoginButton from '../components/GoogleLoginButton';
+import { motion } from 'framer-motion';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -65,23 +66,67 @@ export default function Login() {
   const hasValidGoogleClientId = googleClientId && googleClientId.trim() !== '';
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-floral-50 to-pink-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h2 className="text-5xl font-extrabold text-gray-900 mb-2">
-            🌸 Flores
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-50/50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Efectos de fondo decorativos */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.1, 0.2, 0.1],
+            x: [0, 100, 0],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="absolute top-0 right-0 w-96 h-96 bg-primary-400 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.1, 0.2, 0.1],
+            x: [0, -100, 0],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1
+          }}
+          className="absolute bottom-0 left-0 w-96 h-96 bg-primary-300 rounded-full blur-3xl"
+        />
+      </div>
+
+      <div className="max-w-md w-full space-y-8 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center"
+        >
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl shadow-xl mb-4">
+            <SparklesIcon className="w-10 h-10 text-white" />
+          </div>
+          <h2 className="text-5xl sm:text-6xl font-black text-gray-900 mb-2 bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+            Flores
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 font-medium text-lg">
             {isLogin ? 'Inicia sesión en tu cuenta' : 'Crea una nueva cuenta'}
           </p>
-        </div>
+        </motion.div>
 
-        <div className="card shadow-xl">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-100 p-8 sm:p-10"
+        >
           <form onSubmit={handleSubmit} className="space-y-6">
             {!isLogin && (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
                     Nombre *
                   </label>
                   <input
@@ -94,7 +139,7 @@ export default function Login() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
                     Apellido
                   </label>
                   <input
@@ -106,8 +151,8 @@ export default function Login() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Teléfono * <span className="text-xs text-gray-500">(Para contacto por WhatsApp)</span>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Teléfono * <span className="text-xs text-gray-500 font-normal">(Para contacto por WhatsApp)</span>
                   </label>
                   <div className="flex gap-2">
                     <CountryCodeSelector
@@ -139,7 +184,7 @@ export default function Login() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-700 mb-2">
                 Email *
               </label>
               <input
@@ -153,7 +198,7 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-700 mb-2">
                 Contraseña *
               </label>
               <div className="relative">
@@ -169,7 +214,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-primary-600 transition-colors duration-300 p-1 rounded-lg hover:bg-primary-50"
                 >
                   {showPassword ? (
                     <EyeSlashIcon className="w-5 h-5" />
@@ -180,29 +225,33 @@ export default function Login() {
               </div>
             </div>
 
-            <button
+            <motion.button
               type="submit"
               disabled={loading}
-              className="w-full btn-primary py-3 text-lg font-semibold disabled:opacity-50"
+              whileHover={{ scale: loading ? 1 : 1.02 }}
+              whileTap={{ scale: loading ? 1 : 0.98 }}
+              className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-3.5 text-lg font-black rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Cargando...' : isLogin ? 'Iniciar Sesión' : 'Registrarse'}
-            </button>
+            </motion.button>
           </form>
 
           {hasValidGoogleClientId && <GoogleLoginButton />}
 
-          <div className="mt-6 text-center">
-            <button
+          <div className="mt-6 pt-6 border-t border-gray-200 text-center">
+            <motion.button
               onClick={() => {
                 setIsLogin(!isLogin);
                 setFormData({ email: '', password: '', nombre: '', apellido: '', telefono: '' });
               }}
-              className="text-primary-600 hover:text-primary-700 font-medium"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="text-primary-600 hover:text-primary-700 font-bold transition-colors duration-300"
             >
               {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
-            </button>
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

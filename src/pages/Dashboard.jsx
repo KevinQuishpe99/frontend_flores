@@ -70,30 +70,35 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
+        className="mb-8 sm:mb-10"
       >
-        <h1 className="text-4xl font-bold mb-2">Mi Dashboard</h1>
-        <p className="text-gray-600">Bienvenido, {perfil?.nombre}</p>
+        <h1 className="text-4xl sm:text-5xl font-black text-gray-900 mb-2 bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+          Mi Dashboard
+        </h1>
+        <p className="text-gray-600 text-lg font-medium">Bienvenido, {perfil?.nombre} 👋</p>
       </motion.div>
 
       {/* Estadísticas Rápidas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 sm:mb-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="card bg-gradient-to-br from-blue-50 to-blue-100"
+          whileHover={{ y: -4, scale: 1.02 }}
+          className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-xl border border-blue-400/20 p-6 sm:p-8 text-white"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Pedidos Totales</p>
-              <p className="text-3xl font-bold text-blue-700">{pedidos.length}</p>
+              <p className="text-sm sm:text-base font-bold text-blue-100 mb-2">Pedidos Totales</p>
+              <p className="text-4xl sm:text-5xl font-black">{pedidos.length}</p>
             </div>
-            <ShoppingBagIcon className="w-12 h-12 text-blue-600 opacity-50" />
+            <div className="p-4 bg-white/20 backdrop-blur-sm rounded-xl">
+              <ShoppingBagIcon className="w-8 h-8 sm:w-10 sm:h-10" />
+            </div>
           </div>
         </motion.div>
 
@@ -101,14 +106,17 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="card bg-gradient-to-br from-yellow-50 to-yellow-100"
+          whileHover={{ y: -4, scale: 1.02 }}
+          className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl shadow-xl border border-yellow-400/20 p-6 sm:p-8 text-white"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Pedidos Pendientes</p>
-              <p className="text-3xl font-bold text-yellow-700">{pedidosPendientes.length}</p>
+              <p className="text-sm sm:text-base font-bold text-yellow-100 mb-2">Pedidos Pendientes</p>
+              <p className="text-4xl sm:text-5xl font-black">{pedidosPendientes.length}</p>
             </div>
-            <ClockIcon className="w-12 h-12 text-yellow-600 opacity-50" />
+            <div className="p-4 bg-white/20 backdrop-blur-sm rounded-xl">
+              <ClockIcon className="w-8 h-8 sm:w-10 sm:h-10" />
+            </div>
           </div>
         </motion.div>
 
@@ -116,14 +124,17 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="card bg-gradient-to-br from-green-50 to-green-100"
+          whileHover={{ y: -4, scale: 1.02 }}
+          className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-xl border border-green-400/20 p-6 sm:p-8 text-white"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Pedidos Completados</p>
-              <p className="text-3xl font-bold text-green-700">{pedidosCompletados.length}</p>
+              <p className="text-sm sm:text-base font-bold text-green-100 mb-2">Pedidos Completados</p>
+              <p className="text-4xl sm:text-5xl font-black">{pedidosCompletados.length}</p>
             </div>
-            <CheckCircleIcon className="w-12 h-12 text-green-600 opacity-50" />
+            <div className="p-4 bg-white/20 backdrop-blur-sm rounded-xl">
+              <CheckCircleIcon className="w-8 h-8 sm:w-10 sm:h-10" />
+            </div>
           </div>
         </motion.div>
       </div>
@@ -134,13 +145,13 @@ export default function Dashboard() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
-          className="card"
+          className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8"
         >
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">Pedidos Recientes</h2>
+            <h2 className="text-2xl sm:text-3xl font-black text-gray-900">Pedidos Recientes</h2>
             <Link
               to="/mis-pedidos"
-              className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+              className="text-primary-600 hover:text-primary-700 text-sm font-bold transition-colors duration-300"
             >
               Ver todos →
             </Link>
@@ -200,16 +211,16 @@ export default function Dashboard() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.5 }}
-          className="card"
+          className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8"
         >
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              <HeartIconSolid className="w-6 h-6 text-red-500" />
+            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 flex items-center gap-2">
+              <HeartIconSolid className="w-6 h-6 sm:w-7 sm:h-7 text-red-500" />
               Mis Favoritos
             </h2>
             <Link
               to="/catalogo"
-              className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+              className="text-primary-600 hover:text-primary-700 text-sm font-bold transition-colors duration-300"
             >
               Explorar →
             </Link>
@@ -263,9 +274,9 @@ export default function Dashboard() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="card mt-8"
+        className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 mt-8"
       >
-        <h2 className="text-2xl font-bold mb-6">Mi Información</h2>
+        <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-6">Mi Información</h2>
         <div className="grid md:grid-cols-2 gap-6">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-primary-100 rounded-full">
@@ -315,7 +326,7 @@ export default function Dashboard() {
         <div className="mt-6">
           <Link
             to="/perfil"
-            className="btn-secondary inline-flex items-center"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-800 font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
           >
             Editar Perfil
           </Link>

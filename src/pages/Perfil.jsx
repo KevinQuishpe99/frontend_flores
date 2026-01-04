@@ -6,7 +6,8 @@ import { useAuthStore } from '../store/authStore';
 import toast from 'react-hot-toast';
 import CountryCodeSelector from '../components/CountryCodeSelector';
 import { normalizarTelefono } from '../utils/phoneUtils';
-import { CameraIcon } from '@heroicons/react/24/outline';
+import { CameraIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { motion } from 'framer-motion';
 
 export default function Perfil() {
   const { user, setAuth } = useAuthStore();
@@ -111,29 +112,52 @@ export default function Perfil() {
   };
 
   if (isLoading) {
-    return <div className="text-center py-12">Cargando...</div>;
+    return (
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold mb-8">Mi Perfil</h1>
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8"
+      >
+        <h1 className="text-4xl sm:text-5xl font-black text-gray-900 mb-2 bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+          Mi Perfil
+        </h1>
+        <p className="text-gray-600 text-lg">Gestiona tu información personal</p>
+      </motion.div>
 
-      <div className="card">
-        <div className="flex items-center mb-6">
-          <div className="relative">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-100 p-8 sm:p-10"
+      >
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8 pb-8 border-b border-gray-200">
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
             <img
-              className="h-20 w-20 rounded-full object-cover border-2 border-gray-200"
+              className="relative h-28 w-28 sm:h-32 sm:w-32 rounded-full object-cover border-4 border-white shadow-2xl ring-4 ring-primary-100"
               src={imagenPreview || perfil?.imagen || `https://ui-avatars.com/api/?name=${encodeURIComponent((perfil?.nombre || '') + ' ' + (perfil?.apellido || ''))}&background=random`}
               alt={perfil?.nombre}
             />
-            <button
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="absolute bottom-0 right-0 bg-primary-600 text-white rounded-full p-1.5 hover:bg-primary-700 transition-colors shadow-lg"
+              className="absolute bottom-0 right-0 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-full p-3 hover:from-primary-600 hover:to-primary-700 transition-all shadow-xl border-4 border-white"
               title="Cambiar foto de perfil"
             >
-              <CameraIcon className="w-4 h-4" />
-            </button>
+              <CameraIcon className="w-5 h-5" />
+            </motion.button>
             <input
               ref={fileInputRef}
               type="file"
@@ -142,20 +166,22 @@ export default function Perfil() {
               className="hidden"
             />
           </div>
-          <div className="ml-4">
-            <h2 className="text-2xl font-bold">{perfil?.nombre} {perfil?.apellido}</h2>
-            <p className="text-gray-600">{perfil?.email}</p>
-            <span className="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+          <div className="flex-1 text-center sm:text-left">
+            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mb-2">
+              {perfil?.nombre} {perfil?.apellido}
+            </h2>
+            <p className="text-gray-600 text-lg mb-3">{perfil?.email}</p>
+            <span className="inline-block px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-bold rounded-full shadow-lg">
               {perfil?.rol}
             </span>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nombre
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                Nombre *
               </label>
               <input
                 type="text"
@@ -166,7 +192,7 @@ export default function Perfil() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-700 mb-2">
                 Apellido
               </label>
               <input
@@ -179,9 +205,9 @@ export default function Perfil() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-bold text-gray-700 mb-2">
               Teléfono {user?.rol === 'CLIENTE' && <span className="text-red-500">*</span>}
-              <span className="text-xs text-gray-500 ml-2">(Para contacto por WhatsApp)</span>
+              <span className="text-xs text-gray-500 ml-2 font-normal">(Para contacto por WhatsApp)</span>
             </label>
             <CountryCodeSelector
               value={formData.telefono || '+57 '}
@@ -201,22 +227,28 @@ export default function Perfil() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-bold text-gray-700 mb-2">
               Dirección
             </label>
             <textarea
               value={formData.direccion}
               onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
               className="input"
-              rows="3"
+              rows="4"
             />
           </div>
 
-          <button type="submit" className="btn-primary w-full">
-            Guardar Cambios
-          </button>
+          <motion.button
+            type="submit"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            disabled={updateMutation.isLoading}
+            className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+          >
+            {updateMutation.isLoading ? 'Guardando...' : 'Guardar Cambios'}
+          </motion.button>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 }

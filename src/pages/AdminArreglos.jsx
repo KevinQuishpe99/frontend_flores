@@ -43,7 +43,12 @@ export default function AdminArreglos() {
   const createMutation = useMutation({
     mutationFn: (data) => createArreglo(data),
     onSuccess: () => {
-      queryClient.invalidateQueries(['arreglos']);
+      // Invalidar todas las variantes de la query 'arreglos'
+      queryClient.invalidateQueries({ queryKey: ['arreglos'] });
+      queryClient.invalidateQueries({ queryKey: ['arreglos-home'] });
+      // Forzar refetch inmediato
+      queryClient.refetchQueries({ queryKey: ['arreglos'] });
+      queryClient.refetchQueries({ queryKey: ['arreglos-home'] });
       toast.success('Arreglo creado exitosamente');
       resetForm();
     },
@@ -55,7 +60,12 @@ export default function AdminArreglos() {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => updateArreglo(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries(['arreglos']);
+      // Invalidar todas las variantes de la query 'arreglos'
+      queryClient.invalidateQueries({ queryKey: ['arreglos'] });
+      queryClient.invalidateQueries({ queryKey: ['arreglos-home'] });
+      // Forzar refetch inmediato
+      queryClient.refetchQueries({ queryKey: ['arreglos'] });
+      queryClient.refetchQueries({ queryKey: ['arreglos-home'] });
       toast.success('Arreglo actualizado exitosamente');
       resetForm();
     },
@@ -67,7 +77,12 @@ export default function AdminArreglos() {
   const deleteMutation = useMutation({
     mutationFn: deleteArreglo,
     onSuccess: () => {
-      queryClient.invalidateQueries(['arreglos']);
+      // Invalidar todas las variantes de la query 'arreglos'
+      queryClient.invalidateQueries({ queryKey: ['arreglos'] });
+      queryClient.invalidateQueries({ queryKey: ['arreglos-home'] });
+      // Forzar refetch inmediato
+      queryClient.refetchQueries({ queryKey: ['arreglos'] });
+      queryClient.refetchQueries({ queryKey: ['arreglos-home'] });
       toast.success('Arreglo eliminado exitosamente');
     },
     onError: () => {
@@ -78,7 +93,12 @@ export default function AdminArreglos() {
   const actualizarPreciosMutation = useMutation({
     mutationFn: ({ porcentaje, soloDisponibles }) => actualizarPreciosMasivo(porcentaje, soloDisponibles),
     onSuccess: (data) => {
-      queryClient.invalidateQueries(['arreglos']);
+      // Invalidar todas las variantes de la query 'arreglos'
+      queryClient.invalidateQueries({ queryKey: ['arreglos'] });
+      queryClient.invalidateQueries({ queryKey: ['arreglos-home'] });
+      // Forzar refetch inmediato
+      queryClient.refetchQueries({ queryKey: ['arreglos'] });
+      queryClient.refetchQueries({ queryKey: ['arreglos-home'] });
       toast.success(`Precios actualizados: ${data.arreglosActualizados} arreglos con ${data.porcentajeAplicado}% de aumento`);
       setShowPreciosModal(false);
       setPorcentajeAumento('');

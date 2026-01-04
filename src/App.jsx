@@ -1,5 +1,6 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import Layout from './components/Layout';
+import AdminLayout from './components/AdminLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -144,12 +145,14 @@ function App() {
           }
         />
 
-        {/* Rutas de Admin */}
+        {/* Rutas de Admin - Con Sidebar */}
         <Route
           path="/admin/usuarios"
           element={
             <ProtectedRoute allowedRoles={['ADMIN']}>
-              <AdminUsuarios />
+              <AdminLayout>
+                <AdminUsuarios />
+              </AdminLayout>
             </ProtectedRoute>
           }
         />
@@ -157,7 +160,9 @@ function App() {
           path="/admin/arreglos"
           element={
             <ProtectedRoute allowedRoles={['ADMIN']}>
-              <AdminArreglos />
+              <AdminLayout>
+                <AdminArreglos />
+              </AdminLayout>
             </ProtectedRoute>
           }
         />
@@ -165,7 +170,9 @@ function App() {
           path="/admin/pedidos"
           element={
             <ProtectedRoute allowedRoles={['ADMIN']}>
-              <AdminPedidos />
+              <AdminLayout>
+                <AdminPedidos />
+              </AdminLayout>
             </ProtectedRoute>
           }
         />
@@ -173,7 +180,9 @@ function App() {
           path="/admin/contabilidad"
           element={
             <ProtectedRoute allowedRoles={['ADMIN']}>
-              <Contabilidad />
+              <AdminLayout>
+                <Contabilidad />
+              </AdminLayout>
             </ProtectedRoute>
           }
         />
@@ -181,7 +190,9 @@ function App() {
           path="/admin/configuracion"
           element={
             <ProtectedRoute allowedRoles={['ADMIN']}>
-              <AdminConfiguracion />
+              <AdminLayout>
+                <AdminConfiguracion />
+              </AdminLayout>
             </ProtectedRoute>
           }
         />

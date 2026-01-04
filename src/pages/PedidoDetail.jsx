@@ -8,6 +8,7 @@ import { formatearTelefono } from '../utils/phoneUtils';
 import toast from 'react-hot-toast';
 import Accordion from '../components/Accordion';
 import ImageModal from '../components/ImageModal';
+import { motion } from 'framer-motion';
 import {
   CheckCircleIcon,
   ClockIcon,
@@ -19,8 +20,10 @@ import {
   CurrencyDollarIcon,
   CalendarIcon,
   DocumentTextIcon,
-  ArrowLeftIcon
+  ArrowLeftIcon,
+  MapPinIcon
 } from '@heroicons/react/24/outline';
+import { useTema } from '../components/TemaProvider';
 
 const ESTADOS = {
   PENDIENTE: { label: 'Pendiente', color: 'yellow', icon: ClockIcon },
@@ -35,12 +38,21 @@ export default function PedidoDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const { configuraciones } = useTema();
   const queryClient = useQueryClient();
   const [showAgregarExtras, setShowAgregarExtras] = useState(false);
   const [extras, setExtras] = useState('');
   const [comprobanteExtras, setComprobanteExtras] = useState(null);
   const [notasCliente, setNotasCliente] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
+
+  // Datos de la empresa desde configuraciones (vienen en formato simple: { clave: valor })
+  const direccionEmpresa = configuraciones?.direccion_empresa || '';
+  const whatsappEmpresa1 = configuraciones?.whatsapp_empresa_1 || '';
+  const whatsappEmpresa2 = configuraciones?.whatsapp_empresa_2 || '';
+  
+  // Usar el primer WhatsApp si está disponible, sino el segundo
+  const telefonoEmpresa = whatsappEmpresa1 || whatsappEmpresa2;
 
   const { data: pedido, isLoading } = useQuery({
     queryKey: ['pedido', id],
@@ -75,7 +87,7 @@ export default function PedidoDetail() {
     updateMutation.mutate({ id, data: formData });
   };
 
-  const contactarWhatsApp = (telefono) => {
+  const contactarWhatsApp = (telefono, mensaje = '') => {
     if (!telefono) {
       toast.error('No hay teléfono disponible');
       return;
@@ -90,7 +102,19 @@ export default function PedidoDetail() {
       }
     }
     
-    const url = `https://wa.me/${numeroLimpio}`;
+    const mensajeEncoded = mensaje ? `?text=${encodeURIComponent(mensaje)}` : '';
+    const url = `https://wa.me/${numeroLimpio}${mensajeEncoded}`;
+    window.open(url, '_blank');
+  };
+
+  const abrirGoogleMaps = (direccion) => {
+    if (!direccion) {
+      toast.error('No hay dirección disponible');
+      return;
+    }
+    
+    const direccionEncoded = encodeURIComponent(direccion);
+    const url = `https://www.google.com/maps/search/?api=1&query=${direccionEncoded}`;
     window.open(url, '_blank');
   };
 
@@ -147,202 +171,244 @@ export default function PedidoDetail() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       {/* Botón de Regreso */}
-      <button
+      <motion.button
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
         onClick={() => navigate(getRutaRegreso())}
-        className="mb-3 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium"
+        className="mb-6 flex items-center gap-2 text-gray-600 hover:text-primary-600 transition-all text-sm font-bold group"
       >
-        <ArrowLeftIcon className="w-5 h-5" />
+        <ArrowLeftIcon className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
         <span>Volver a la lista de pedidos</span>
-      </button>
+      </motion.button>
 
-      {/* Header Compacto */}
-      <div className="card mb-3 sm:mb-4 p-3 sm:p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 sm:p-3 rounded-lg bg-${estadoInfo.color}-500`}>
-              <EstadoIcon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+      {/* Header Moderno */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gradient-to-r from-white to-gray-50 rounded-2xl shadow-xl mb-6 p-6 border border-gray-100"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className={`p-4 rounded-2xl bg-gradient-to-br from-${estadoInfo.color}-500 to-${estadoInfo.color}-600 shadow-lg`}>
+              <EstadoIcon className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+              <h1 className="text-3xl sm:text-4xl font-black text-gray-900 mb-2">
                 Pedido #{pedido.id.slice(0, 8)}
               </h1>
-              <div className="flex items-center gap-2 mt-1 flex-wrap">
-                <span className={`inline-block px-2 py-1 rounded-md bg-${estadoInfo.color}-600 text-white font-semibold text-xs`}>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={`inline-block px-4 py-2 rounded-xl bg-gradient-to-r from-${estadoInfo.color}-500 to-${estadoInfo.color}-600 text-white font-bold text-sm shadow-md`}>
                   {estadoInfo.label}
                 </span>
                 {pedido.prioridad > 0 && (
-                  <span className="inline-block px-2 py-1 rounded-md bg-red-100 text-red-700 font-semibold text-xs">
-                    ⚡ Prioridad
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-bold text-xs shadow-md">
+                    ⚡ Prioridad Alta
                   </span>
                 )}
               </div>
             </div>
           </div>
-          {puedeContactar && (
-            <button
-              onClick={() => contactarWhatsApp(pedido.cliente.telefono)}
-              className="btn-primary flex items-center gap-2 text-sm px-3 py-2"
+          {(user?.rol === 'EMPLEADO' || user?.rol === 'GERENTE' || user?.rol === 'ADMIN') && pedido.cliente.telefono && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => contactarWhatsApp(pedido.cliente.telefono, `Hola ${pedido.cliente.nombre}, te contacto sobre tu pedido #${pedido.id.slice(0, 8)}`)}
+              className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white flex items-center gap-2 text-sm px-5 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all"
             >
-              <PhoneIcon className="w-4 h-4" />
-              <span className="hidden sm:inline">Contactar</span>
-            </button>
+              <PhoneIcon className="w-5 h-5" />
+              <span className="hidden sm:inline">WhatsApp Cliente</span>
+              <span className="sm:hidden">WhatsApp</span>
+            </motion.button>
           )}
         </div>
-      </div>
+      </motion.div>
 
-      {/* Grid Compacto */}
-      <div className="grid lg:grid-cols-3 gap-3 sm:gap-4">
+      {/* Grid Moderno */}
+      <div className="grid lg:grid-cols-3 gap-6">
         {/* Columna Principal */}
-        <div className="lg:col-span-2 space-y-3 sm:space-y-4">
+        <div className="lg:col-span-2 space-y-6">
           {/* Información Básica - Siempre Visible */}
-          <div className="card p-3 sm:p-4">
-            <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Fecha de Entrega</p>
-                <p className="font-semibold text-sm">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100"
+          >
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
+                <p className="text-xs text-gray-600 mb-2 font-semibold uppercase tracking-wide">Fecha de Entrega</p>
+                <p className="font-bold text-lg text-gray-900 mb-1">
                   {new Date(pedido.horaEntrega).toLocaleDateString('es-ES', { 
                     day: 'numeric', 
-                    month: 'short', 
+                    month: 'long', 
                     year: 'numeric' 
                   })}
                 </p>
-                <p className="text-primary-600 font-medium text-sm">
+                <p className="text-primary-600 font-black text-xl">
                   {new Date(pedido.horaEntrega).toLocaleTimeString('es-ES', { 
                     hour: '2-digit', 
                     minute: '2-digit' 
                   })}
                 </p>
               </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Total</p>
-                <p className="font-bold text-xl text-primary-600">
+              <div className="p-4 bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl">
+                <p className="text-xs text-gray-600 mb-2 font-semibold uppercase tracking-wide">Total</p>
+                <p className="font-black text-3xl text-primary-600 mb-1">
                   ${(pedido.valorAcordado + (pedido.extras || 0)).toLocaleString()}
                 </p>
                 {pedido.extras > 0 && (
-                  <p className="text-xs text-green-600 mt-1">
+                  <p className="text-sm text-green-600 font-bold">
                     + ${pedido.extras.toLocaleString()} extras
                   </p>
                 )}
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Arreglo - Compacto */}
+          {/* Arreglo - Moderno */}
           {pedido.arreglo && (
-            <Accordion 
-              title="Arreglo Solicitado" 
-              icon={<PhotoIcon className="w-4 h-4" />}
-              defaultOpen={true}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
             >
-              <div className="flex gap-3">
-                <img
-                  src={getImageUrl(pedido.arreglo.imagenEditada || pedido.arreglo.imagen, { width: 100, height: 100 })}
-                  alt={pedido.arreglo.nombre}
-                  className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity border-2 border-primary-200"
-                  onClick={() => setSelectedImage(getImageUrl(pedido.arreglo.imagenEditada || pedido.arreglo.imagen))}
-                  title="Click para ver imagen completa"
-                />
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-base sm:text-lg mb-1">{pedido.arreglo.nombre}</h3>
-                  <p className="text-gray-600 text-xs sm:text-sm line-clamp-2 mb-2">{pedido.arreglo.descripcion}</p>
-                  <div className="flex items-center justify-between">
-                    <p className="text-primary-600 font-bold text-lg">
-                      ${pedido.precioArreglo.toLocaleString()}
-                    </p>
-                    {pedido.arreglo.tipo && (
-                      <span className="px-2 py-1 bg-primary-100 text-primary-700 rounded-full text-xs font-medium">
-                        {pedido.arreglo.tipo.nombre}
-                      </span>
-                    )}
+              <Accordion 
+                title="Arreglo Solicitado" 
+                icon={<PhotoIcon className="w-5 h-5" />}
+                defaultOpen={true}
+              >
+                <div className="flex gap-4 p-4 bg-gradient-to-r from-gray-50 to-white rounded-xl">
+                  <div className="relative w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 rounded-xl overflow-hidden ring-4 ring-primary-100 cursor-pointer hover:ring-primary-300 transition-all group">
+                    <img
+                      src={getImageUrl(pedido.arreglo.imagenEditada || pedido.arreglo.imagen, { width: 150, height: 150 })}
+                      alt={pedido.arreglo.nombre}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      onClick={() => setSelectedImage(getImageUrl(pedido.arreglo.imagenEditada || pedido.arreglo.imagen))}
+                      title="Click para ver imagen completa"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-black text-xl sm:text-2xl mb-2 text-gray-900">{pedido.arreglo.nombre}</h3>
+                    <p className="text-gray-600 text-sm sm:text-base line-clamp-2 mb-3 leading-relaxed">{pedido.arreglo.descripcion}</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-primary-600 font-black text-2xl">
+                        ${pedido.precioArreglo.toLocaleString()}
+                      </p>
+                      {pedido.arreglo.tipo && (
+                        <span className="px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-full text-xs font-bold shadow-md">
+                          {pedido.arreglo.tipo.nombre}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Accordion>
+              </Accordion>
+            </motion.div>
           )}
 
-          {/* Progreso - Acordeón */}
-          <Accordion 
-            title="Progreso del Pedido" 
-            icon={<ClockIcon className="w-4 h-4" />}
-            defaultOpen={true}
+          {/* Progreso - Timeline Moderno */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
           >
-            <div className="relative">
-              <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200"></div>
-              <div className="space-y-4">
-                {estadosOrden.map((estado, index) => {
-                  const estadoTimeline = ESTADOS[estado];
-                  const IconTimeline = estadoTimeline.icon;
-                  const estaCompletado = index <= estadoActualIndex;
-                  const esActual = index === estadoActualIndex;
-                  const entradaHistorial = historial.find(h => h.estado === estado);
-                  const esSiguienteEstado = siguienteEstado === estado && puedeActualizarEstado;
+            <Accordion 
+              title="Progreso del Pedido" 
+              icon={<ClockIcon className="w-5 h-5" />}
+              defaultOpen={true}
+            >
+              <div className="relative pl-8">
+                <div className="absolute left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-gray-200 via-gray-200 to-gray-200"></div>
+                <div className="absolute left-6 top-0 w-1 bg-gradient-to-b from-primary-500 to-primary-600" style={{ height: `${((estadoActualIndex + 1) / estadosOrden.length) * 100}%` }}></div>
+                <div className="space-y-6">
+                  {estadosOrden.map((estado, index) => {
+                    const estadoTimeline = ESTADOS[estado];
+                    const IconTimeline = estadoTimeline.icon;
+                    const estaCompletado = index <= estadoActualIndex;
+                    const esActual = index === estadoActualIndex;
+                    const entradaHistorial = historial.find(h => h.estado === estado);
+                    const esSiguienteEstado = siguienteEstado === estado && puedeActualizarEstado;
 
-                  return (
-                    <div key={estado} className="relative flex items-start gap-3">
-                      <div className={`relative z-10 flex items-center justify-center w-8 h-8 rounded-full ${
-                        estaCompletado ? `bg-${estadoTimeline.color}-600` : 'bg-gray-300'
-                      } ${esActual ? 'ring-2 ring-primary-300' : ''}`}>
-                        <IconTimeline className={`w-4 h-4 ${
-                          estaCompletado ? 'text-white' : 'text-gray-500'
-                        }`} />
-                      </div>
-                      <div className="flex-1 pb-2">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex-1">
-                            <div className={`font-semibold text-sm ${
-                              estaCompletado ? 'text-gray-900' : 'text-gray-400'
-                            }`}>
-                              {estadoTimeline.label}
+                    return (
+                      <motion.div
+                        key={estado}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="relative flex items-start gap-4"
+                      >
+                        <div className={`relative z-10 flex items-center justify-center w-12 h-12 rounded-2xl shadow-lg ${
+                          estaCompletado 
+                            ? `bg-gradient-to-br from-${estadoTimeline.color}-500 to-${estadoTimeline.color}-600` 
+                            : 'bg-gray-300'
+                        } ${esActual ? 'ring-4 ring-primary-300 animate-pulse-glow' : ''} transition-all`}>
+                          <IconTimeline className={`w-6 h-6 ${
+                            estaCompletado ? 'text-white' : 'text-gray-500'
+                          }`} />
+                          {estaCompletado && (
+                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
+                              <CheckCircleIcon className="w-2.5 h-2.5 text-white" />
                             </div>
-                            {entradaHistorial && (
-                              <div className="text-xs text-gray-500 mt-1">
-                                {new Date(entradaHistorial.fecha).toLocaleString('es-ES', {
-                                  day: 'numeric',
-                                  month: 'short',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
-                                {entradaHistorial.usuario && (
-                                  <span className="ml-2 text-primary-600">por {entradaHistorial.usuario}</span>
-                                )}
-                              </div>
-                            )}
-                            {esActual && (
-                              <div className="text-xs text-primary-600 font-medium mt-1 flex items-center gap-1">
-                                <div className="w-1.5 h-1.5 bg-primary-600 rounded-full animate-pulse"></div>
-                                Estado actual
-                              </div>
-                            )}
-                          </div>
-                          {/* Botón para avanzar al siguiente estado */}
-                          {esSiguienteEstado && (
-                            <button
-                              onClick={() => handleCambiarEstado(estado)}
-                              className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1.5 whitespace-nowrap"
-                              disabled={updateMutation.isPending}
-                            >
-                              {updateMutation.isPending ? (
-                                <>
-                                  <ClockIcon className="w-3 h-3 animate-spin" />
-                                  Actualizando...
-                                </>
-                              ) : (
-                                <>
-                                  <CheckCircleIcon className="w-3 h-3" />
-                                  Marcar como {estadoTimeline.label}
-                                </>
-                              )}
-                            </button>
                           )}
                         </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                        <div className="flex-1 pb-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1">
+                              <div className={`font-black text-base mb-2 ${
+                                estaCompletado ? 'text-gray-900' : 'text-gray-400'
+                              }`}>
+                                {estadoTimeline.label}
+                              </div>
+                              {entradaHistorial && (
+                                <div className="text-xs text-gray-600 font-medium bg-gray-50 px-3 py-1.5 rounded-lg inline-block">
+                                  📅 {new Date(entradaHistorial.fecha).toLocaleString('es-ES', {
+                                    day: 'numeric',
+                                    month: 'short',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                  {entradaHistorial.usuario && (
+                                    <span className="ml-2 text-primary-600 font-bold">por {entradaHistorial.usuario}</span>
+                                  )}
+                                </div>
+                              )}
+                              {esActual && (
+                                <div className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-primary-100 text-primary-700 rounded-lg text-xs font-bold">
+                                  <div className="w-2 h-2 bg-primary-600 rounded-full animate-pulse"></div>
+                                  Estado actual
+                                </div>
+                              )}
+                            </div>
+                            {/* Botón para avanzar al siguiente estado */}
+                            {esSiguienteEstado && (
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => handleCambiarEstado(estado)}
+                                className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white text-xs px-4 py-2.5 flex items-center gap-2 whitespace-nowrap rounded-xl font-bold shadow-lg hover:shadow-xl transition-all"
+                                disabled={updateMutation.isPending}
+                              >
+                                {updateMutation.isPending ? (
+                                  <>
+                                    <ClockIcon className="w-4 h-4 animate-spin" />
+                                    Actualizando...
+                                  </>
+                                ) : (
+                                  <>
+                                    <CheckCircleIcon className="w-4 h-4" />
+                                    Marcar como {estadoTimeline.label}
+                                  </>
+                                )}
+                              </motion.button>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
             
             {/* Mensaje informativo para empleados */}
             {puedeActualizarEstado && siguienteEstado && (
@@ -353,6 +419,7 @@ export default function PedidoDetail() {
               </div>
             )}
           </Accordion>
+          </motion.div>
 
           {/* Información del Cliente - Acordeón */}
           {(user?.rol === 'EMPLEADO' || user?.rol === 'GERENTE' || user?.rol === 'ADMIN') && (
@@ -546,53 +613,118 @@ export default function PedidoDetail() {
           )}
         </div>
 
-        {/* Sidebar Compacto */}
-        <div className="space-y-3 sm:space-y-4">
+        {/* Sidebar Moderno */}
+        <div className="space-y-6">
+          {/* Botones de Contacto */}
+          {(telefonoEmpresa || direccionEmpresa) && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100"
+            >
+              <h3 className="font-black text-lg mb-4 flex items-center gap-2">
+                <PhoneIcon className="w-5 h-5 text-primary-600" />
+                <span className="text-primary-600">Contacto</span>
+              </h3>
+              <div className="space-y-3">
+                {telefonoEmpresa && (
+                  <>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => contactarWhatsApp(whatsappEmpresa1 || telefonoEmpresa, `Hola, tengo una consulta sobre el pedido #${pedido.id.slice(0, 8)}`)}
+                      className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-4 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                    >
+                      <PhoneIcon className="w-5 h-5" />
+                      WhatsApp Principal
+                    </motion.button>
+                    {whatsappEmpresa2 && (
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => contactarWhatsApp(whatsappEmpresa2, `Hola, tengo una consulta sobre el pedido #${pedido.id.slice(0, 8)}`)}
+                        className="w-full bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-white px-4 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                      >
+                        <PhoneIcon className="w-5 h-5" />
+                        WhatsApp Secundario
+                      </motion.button>
+                    )}
+                  </>
+                )}
+                
+                {direccionEmpresa && (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => abrirGoogleMaps(direccionEmpresa)}
+                    className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                  >
+                    <MapPinIcon className="w-5 h-5" />
+                    Ver en Google Maps
+                  </motion.button>
+                )}
+              </div>
+            </motion.div>
+          )}
+
           {/* Resumen de Información */}
-          <div className="card p-3 sm:p-4">
-            <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
-              <CurrencyDollarIcon className="w-4 h-4 text-primary-600" />
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 sticky top-6"
+          >
+            <h3 className="font-black text-xl mb-6 flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg">
+                <CurrencyDollarIcon className="w-5 h-5 text-white" />
+              </div>
               Resumen
             </h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Valor Acordado:</span>
-                <span className="font-semibold">${pedido.valorAcordado.toLocaleString()}</span>
+            <div className="space-y-4">
+              <div className="p-4 bg-gray-50 rounded-xl">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm text-gray-600 font-medium">Valor Acordado:</span>
+                  <span className="font-bold text-lg">${pedido.valorAcordado.toLocaleString()}</span>
+                </div>
               </div>
               {pedido.extras > 0 && (
-                <div className="flex justify-between text-green-600">
-                  <span>Extras:</span>
-                  <span className="font-semibold">+ ${pedido.extras.toLocaleString()}</span>
+                <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-green-700 font-bold">Extras:</span>
+                    <span className="font-black text-lg text-green-700">+ ${pedido.extras.toLocaleString()}</span>
+                  </div>
                 </div>
               )}
-              <div className="flex justify-between pt-2 border-t border-gray-200">
-                <span className="font-semibold">Total:</span>
-                <span className="font-bold text-lg text-primary-600">
-                  ${(pedido.valorAcordado + (pedido.extras || 0)).toLocaleString()}
-                </span>
+              <div className="p-5 bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl border-2 border-primary-200">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-gray-800">Total:</span>
+                  <span className="font-black text-3xl text-primary-600">
+                    ${(pedido.valorAcordado + (pedido.extras || 0)).toLocaleString()}
+                  </span>
+                </div>
               </div>
-              <div className="pt-2 border-t border-gray-200">
-                <p className="text-xs text-gray-600 mb-1">Estado de Pago</p>
-                <div className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${
+              <div className="pt-4 border-t border-gray-200">
+                <p className="text-xs text-gray-600 mb-2 font-semibold uppercase tracking-wide">Estado de Pago</p>
+                <div className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold shadow-md ${
                   pedido.transferenciaVerificada 
-                    ? 'bg-green-100 text-green-700' 
-                    : 'bg-yellow-100 text-yellow-700'
+                    ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' 
+                    : 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white'
                 }`}>
                   {pedido.transferenciaVerificada ? (
                     <>
-                      <CheckCircleIcon className="w-3 h-3" />
+                      <CheckCircleIcon className="w-5 h-5" />
                       Verificado
                     </>
                   ) : (
                     <>
-                      <ClockIcon className="w-3 h-3" />
+                      <ClockIcon className="w-5 h-5" />
                       Pendiente
                     </>
                   )}
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Empleado Asignado - Solo Gerente/Admin */}
           {pedido.empleado && (user?.rol === 'GERENTE' || user?.rol === 'ADMIN') && (

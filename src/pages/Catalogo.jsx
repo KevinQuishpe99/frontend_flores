@@ -15,6 +15,7 @@ import {
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import ArregloCard from '../components/ArregloCard';
+import ContactoSection from '../components/ContactoSection';
 
 const ORDENAMIENTOS = {
   nombre_asc: { label: 'Nombre (A-Z)', value: 'nombre_asc' },
@@ -40,8 +41,9 @@ export default function Catalogo() {
   });
 
   const { data: arreglos = [], isLoading: loadingArreglos } = useQuery({
-    queryKey: ['arreglos'],
+    queryKey: ['arreglos', { disponible: true }],
     queryFn: () => getArreglos({ disponible: true }),
+    staleTime: 0, // Siempre considerar obsoleto para refrescar inmediatamente
   });
 
   const { data: tiposArreglo = [] } = useQuery({
@@ -125,61 +127,85 @@ export default function Catalogo() {
 
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
-      {/* Header Compacto */}
-      <div className="mb-4 sm:mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+      {/* Header Moderno */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-6 sm:mb-8"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">Catálogo</h1>
-            <p className="text-sm text-gray-600">
+            <h1 className="text-4xl sm:text-5xl font-black text-gray-900 mb-2 bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+              Catálogo
+            </h1>
+            <p className="text-base sm:text-lg text-gray-600 font-medium">
               {arreglosFiltrados.length} {arreglosFiltrados.length === 1 ? 'arreglo disponible' : 'arreglos disponibles'}
-              {tipoFiltro && ` • Página ${paginaActual} de ${totalPaginas}`}
+              {tipoFiltro && (
+                <span className="ml-2 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-bold">
+                  Página {paginaActual} de {totalPaginas}
+                </span>
+              )}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 border rounded-lg p-1 bg-white">
-              <button
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 border-2 border-gray-200 rounded-xl p-1 bg-white shadow-sm">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setVista('grid')}
-                className={`p-1.5 rounded transition-colors ${
-                  vista === 'grid' ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100'
+                className={`p-2 rounded-lg transition-all ${
+                  vista === 'grid' 
+                    ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-md' 
+                    : 'text-gray-600 hover:bg-gray-100'
                 }`}
                 title="Vista de cuadrícula"
               >
-                <Squares2X2Icon className="w-4 h-4" />
-              </button>
-              <button
+                <Squares2X2Icon className="w-5 h-5" />
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setVista('lista')}
-                className={`p-1.5 rounded transition-colors ${
-                  vista === 'lista' ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100'
+                className={`p-2 rounded-lg transition-all ${
+                  vista === 'lista' 
+                    ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-md' 
+                    : 'text-gray-600 hover:bg-gray-100'
                 }`}
                 title="Vista de lista"
               >
-                <ListBulletIcon className="w-4 h-4" />
-              </button>
+                <ListBulletIcon className="w-5 h-5" />
+              </motion.button>
             </div>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setMostrarFiltros(!mostrarFiltros)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 text-sm font-bold transition-all shadow-sm hover:shadow-md ${
                 mostrarFiltros
-                  ? 'bg-primary-600 text-white border-primary-600'
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white border-primary-600'
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-primary-300'
               }`}
             >
-              <FunnelIcon className="w-4 h-4" />
+              <FunnelIcon className="w-5 h-5" />
               <span className="hidden sm:inline">Filtros</span>
-            </button>
+            </motion.button>
           </div>
         </div>
 
-        {/* Filtros por Tipo - Chips */}
+        {/* Filtros por Tipo - Chips Modernos */}
         {tiposArreglo.length > 0 && (
-          <div className="mb-4">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm font-medium text-gray-700">Filtrar por tipo:</span>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="text-sm font-bold text-gray-700">Filtrar por tipo:</span>
               <button
                 onClick={() => handleTipoClick('')}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm hover:shadow-md ${
                   !tipoFiltro
-                    ? 'bg-primary-600 text-white shadow-md'
+                    ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -188,40 +214,48 @@ export default function Catalogo() {
               {tiposArreglo.map((tipo) => {
                 const cantidad = arreglos.filter(a => a.tipoId === tipo.id).length;
                 return (
-                  <button
+                  <motion.button
                     key={tipo.id}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => handleTipoClick(tipo.id)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm hover:shadow-md ${
                       tipoFiltro === tipo.id
-                        ? 'bg-primary-600 text-white shadow-md'
+                        ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    {tipo.nombre} {cantidad > 0 && `(${cantidad})`}
-                  </button>
+                    {tipo.nombre} {cantidad > 0 && (
+                      <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${
+                        tipoFiltro === tipo.id ? 'bg-white/20' : 'bg-primary-100 text-primary-700'
+                      }`}>
+                        {cantidad}
+                      </span>
+                    )}
+                  </motion.button>
                 );
               })}
             </div>
-          </div>
+          </motion.div>
         )}
 
-        {/* Barra de Búsqueda y Ordenamiento */}
-        <div className="flex flex-col sm:flex-row gap-3">
+        {/* Barra de Búsqueda y Ordenamiento Moderna */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <div className="relative flex-1">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Buscar arreglos..."
+              placeholder="🔍 Buscar arreglos..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              className="input pl-10 w-full text-sm"
+              className="input pl-12 w-full text-base border-2 border-gray-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 rounded-xl py-3 font-medium"
             />
           </div>
-          <div className="sm:w-48">
+          <div className="sm:w-56">
             <select
               value={ordenamiento}
               onChange={(e) => setOrdenamiento(e.target.value)}
-              className="input w-full text-sm"
+              className="input w-full text-base border-2 border-gray-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 rounded-xl py-3 font-medium"
             >
               {Object.values(ORDENAMIENTOS).map((opcion) => (
                 <option key={opcion.value} value={opcion.value}>
@@ -285,7 +319,7 @@ export default function Catalogo() {
             </div>
           </motion.div>
         )}
-      </div>
+      </motion.div>
 
       {/* Grid de Arreglos */}
       <div>
@@ -302,22 +336,28 @@ export default function Catalogo() {
             ))}
           </div>
         ) : arreglosFiltrados.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-5xl mb-3">🌸</div>
-            <p className="text-lg text-gray-600 mb-1">No se encontraron arreglos</p>
-            <p className="text-sm text-gray-500">Intenta con otros filtros o búsqueda</p>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center py-16"
+          >
+            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center text-5xl">
+              🌸
+            </div>
+            <p className="text-2xl font-black text-gray-900 mb-2">No se encontraron arreglos</p>
+            <p className="text-gray-600 mb-6">Intenta con otros filtros o búsqueda</p>
             {(tipoFiltro || busqueda || precioMin || precioMax) && (
               <button
                 onClick={limpiarFiltros}
-                className="mt-4 btn-primary text-sm"
+                className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all"
               >
                 Limpiar Filtros
               </button>
             )}
-          </div>
+          </motion.div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
               {arreglosPaginados.map((arreglo, index) => (
                 <ArregloCard
                   key={arreglo.id}
@@ -329,73 +369,88 @@ export default function Catalogo() {
               ))}
             </div>
 
-            {/* Paginación */}
+            {/* Paginación Moderna */}
             {totalPaginas > 1 && (
-              <div className="mt-8 flex items-center justify-center gap-2">
-                <button
-                  onClick={() => setPaginaActual(prev => Math.max(1, prev - 1))}
-                  disabled={paginaActual === 1}
-                  className={`p-2 rounded-lg border transition-all ${
-                    paginaActual === 1
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
-                  }`}
-                >
-                  <ChevronLeftIcon className="w-5 h-5" />
-                </button>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-10 flex flex-col items-center gap-4"
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <motion.button
+                    whileHover={{ scale: 1.1, x: -2 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setPaginaActual(prev => Math.max(1, prev - 1))}
+                    disabled={paginaActual === 1}
+                    className={`p-3 rounded-xl border-2 transition-all ${
+                      paginaActual === 1
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200'
+                        : 'bg-white text-gray-700 hover:bg-primary-50 hover:border-primary-300 border-gray-300 shadow-sm hover:shadow-md'
+                    }`}
+                  >
+                    <ChevronLeftIcon className="w-5 h-5" />
+                  </motion.button>
 
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: Math.min(5, totalPaginas) }, (_, i) => {
-                    let numeroPagina;
-                    if (totalPaginas <= 5) {
-                      numeroPagina = i + 1;
-                    } else if (paginaActual <= 3) {
-                      numeroPagina = i + 1;
-                    } else if (paginaActual >= totalPaginas - 2) {
-                      numeroPagina = totalPaginas - 4 + i;
-                    } else {
-                      numeroPagina = paginaActual - 2 + i;
-                    }
+                  <div className="flex items-center gap-2">
+                    {Array.from({ length: Math.min(5, totalPaginas) }, (_, i) => {
+                      let numeroPagina;
+                      if (totalPaginas <= 5) {
+                        numeroPagina = i + 1;
+                      } else if (paginaActual <= 3) {
+                        numeroPagina = i + 1;
+                      } else if (paginaActual >= totalPaginas - 2) {
+                        numeroPagina = totalPaginas - 4 + i;
+                      } else {
+                        numeroPagina = paginaActual - 2 + i;
+                      }
 
-                    return (
-                      <button
-                        key={numeroPagina}
-                        onClick={() => setPaginaActual(numeroPagina)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                          paginaActual === numeroPagina
-                            ? 'bg-primary-600 text-white shadow-md'
-                            : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                        }`}
-                      >
-                        {numeroPagina}
-                      </button>
-                    );
-                  })}
+                      return (
+                        <motion.button
+                          key={numeroPagina}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => setPaginaActual(numeroPagina)}
+                          className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                            paginaActual === numeroPagina
+                              ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg'
+                              : 'bg-white text-gray-700 hover:bg-primary-50 border-2 border-gray-200 hover:border-primary-300 shadow-sm hover:shadow-md'
+                          }`}
+                        >
+                          {numeroPagina}
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+
+                  <motion.button
+                    whileHover={{ scale: 1.1, x: 2 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setPaginaActual(prev => Math.min(totalPaginas, prev + 1))}
+                    disabled={paginaActual === totalPaginas}
+                    className={`p-3 rounded-xl border-2 transition-all ${
+                      paginaActual === totalPaginas
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200'
+                        : 'bg-white text-gray-700 hover:bg-primary-50 hover:border-primary-300 border-gray-300 shadow-sm hover:shadow-md'
+                    }`}
+                  >
+                    <ChevronRightIcon className="w-5 h-5" />
+                  </motion.button>
                 </div>
 
-                <button
-                  onClick={() => setPaginaActual(prev => Math.min(totalPaginas, prev + 1))}
-                  disabled={paginaActual === totalPaginas}
-                  className={`p-2 rounded-lg border transition-all ${
-                    paginaActual === totalPaginas
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
-                  }`}
-                >
-                  <ChevronRightIcon className="w-5 h-5" />
-                </button>
-              </div>
-            )}
-
-            {/* Info de paginación */}
-            {totalPaginas > 1 && (
-              <div className="mt-4 text-center text-sm text-gray-600">
-                Mostrando {inicio + 1}-{Math.min(fin, arreglosFiltrados.length)} de {arreglosFiltrados.length} arreglos
-              </div>
+                {/* Info de paginación */}
+                <div className="text-center">
+                  <span className="px-4 py-2 bg-primary-100 text-primary-700 rounded-full text-sm font-bold">
+                    Mostrando {inicio + 1}-{Math.min(fin, arreglosFiltrados.length)} de {arreglosFiltrados.length} arreglos
+                  </span>
+                </div>
+              </motion.div>
             )}
           </>
         )}
       </div>
+
+      {/* Sección de Mapa y Contactos */}
+      <ContactoSection />
     </div>
   );
 }

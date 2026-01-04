@@ -26,6 +26,24 @@ export const updateTema = (data) => {
   if (data.colorAcento) {
     formData.append('colorAcento', data.colorAcento);
   }
+  if (data.colorTexto) {
+    formData.append('colorTexto', data.colorTexto);
+  }
+  if (data.tituloInicio) {
+    formData.append('tituloInicio', data.tituloInicio);
+  }
+  if (data.mensajeInicio) {
+    formData.append('mensajeInicio', data.mensajeInicio);
+  }
+  if (data.direccionEmpresa !== undefined) {
+    formData.append('direccionEmpresa', data.direccionEmpresa);
+  }
+  if (data.whatsappEmpresa1 !== undefined) {
+    formData.append('whatsappEmpresa1', data.whatsappEmpresa1);
+  }
+  if (data.whatsappEmpresa2 !== undefined) {
+    formData.append('whatsappEmpresa2', data.whatsappEmpresa2);
+  }
 
   return axios.put('/configuracion/tema', formData, {
     headers: {

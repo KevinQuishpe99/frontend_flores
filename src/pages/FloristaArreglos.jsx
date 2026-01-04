@@ -32,7 +32,12 @@ export default function FloristaArreglos() {
   const createMutation = useMutation({
     mutationFn: (data) => createArreglo(data),
     onSuccess: () => {
-      queryClient.invalidateQueries(['arreglos']);
+      // Invalidar todas las variantes de la query 'arreglos'
+      queryClient.invalidateQueries({ queryKey: ['arreglos'] });
+      queryClient.invalidateQueries({ queryKey: ['arreglos-home'] });
+      // Forzar refetch inmediato
+      queryClient.refetchQueries({ queryKey: ['arreglos'] });
+      queryClient.refetchQueries({ queryKey: ['arreglos-home'] });
       toast.success('Arreglo creado exitosamente');
       resetForm();
     },
@@ -44,7 +49,12 @@ export default function FloristaArreglos() {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => updateArreglo(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries(['arreglos']);
+      // Invalidar todas las variantes de la query 'arreglos'
+      queryClient.invalidateQueries({ queryKey: ['arreglos'] });
+      queryClient.invalidateQueries({ queryKey: ['arreglos-home'] });
+      // Forzar refetch inmediato
+      queryClient.refetchQueries({ queryKey: ['arreglos'] });
+      queryClient.refetchQueries({ queryKey: ['arreglos-home'] });
       toast.success('Arreglo actualizado exitosamente');
       resetForm();
     },
@@ -56,7 +66,12 @@ export default function FloristaArreglos() {
   const deleteMutation = useMutation({
     mutationFn: deleteArreglo,
     onSuccess: () => {
-      queryClient.invalidateQueries(['arreglos']);
+      // Invalidar todas las variantes de la query 'arreglos'
+      queryClient.invalidateQueries({ queryKey: ['arreglos'] });
+      queryClient.invalidateQueries({ queryKey: ['arreglos-home'] });
+      // Forzar refetch inmediato
+      queryClient.refetchQueries({ queryKey: ['arreglos'] });
+      queryClient.refetchQueries({ queryKey: ['arreglos-home'] });
       toast.success('Arreglo eliminado exitosamente');
     },
     onError: () => {

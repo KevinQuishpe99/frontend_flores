@@ -5,8 +5,9 @@ import { useAuthStore } from '../store/authStore';
 import { createPedido } from '../api/pedidos';
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { CalendarIcon, CreditCardIcon } from '@heroicons/react/24/outline';
+import { CalendarIcon, CreditCardIcon, SparklesIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import { getImageUrl } from '../utils/imageUrl';
+import { motion } from 'framer-motion';
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -91,103 +92,190 @@ export default function Checkout() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold mb-8">Finalizar Pedido</h1>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8"
+      >
+        <h1 className="text-4xl sm:text-5xl font-black text-gray-900 mb-2 bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+          Finalizar Pedido
+        </h1>
+        <p className="text-gray-600 text-lg">Revisa tu pedido y completa la información</p>
+      </motion.div>
 
-      <div className="grid md:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Resumen del Carrito */}
-        <div className="md:col-span-2">
-          <div className="card mb-6">
-            <h2 className="text-xl font-bold mb-4">Resumen del Pedido</h2>
+        <div className="lg:col-span-2 space-y-6">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-3 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl">
+                <SparklesIcon className="w-6 h-6 text-white" />
+              </div>
+              <h2 className="text-2xl font-black text-gray-900">Resumen del Pedido</h2>
+            </div>
             <div className="space-y-4">
-              {items.map((item) => (
-                <div key={item.arregloId} className="flex gap-4 pb-4 border-b last:border-0">
-                  <img
-                    src={getImageUrl(item.arreglo.imagenEditada || item.arreglo.imagen)}
-                    alt={item.arreglo.nombre}
-                    className="w-20 h-20 object-cover rounded-lg"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{item.arreglo.nombre}</h3>
-                    <p className="text-sm text-gray-600">Cantidad: {item.cantidad}</p>
+              {items.map((item, index) => (
+                <motion.div
+                  key={item.arregloId}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex gap-4 p-4 bg-gradient-to-r from-gray-50 to-white rounded-xl border border-gray-200 hover:shadow-md transition-all group"
+                >
+                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 rounded-xl overflow-hidden ring-2 ring-primary-100 group-hover:ring-primary-300 transition-all">
+                    <img
+                      src={getImageUrl(item.arreglo.imagenEditada || item.arreglo.imagen)}
+                      alt={item.arreglo.nombre}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-lg mb-1 text-gray-900 group-hover:text-primary-600 transition-colors">
+                      {item.arreglo.nombre}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-2 font-medium">
+                      Cantidad: <span className="font-bold text-primary-600">{item.cantidad}</span>
+                    </p>
                     {item.notas && (
-                      <p className="text-sm text-gray-500 italic">Notas: {item.notas}</p>
+                      <p className="text-sm text-gray-500 italic bg-gray-50 p-2 rounded-lg">
+                        📝 {item.notas}
+                      </p>
                     )}
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-primary-600">
+                    <p className="font-black text-2xl text-primary-600">
                       ${(item.arreglo.costo * item.cantidad).toLocaleString()}
                     </p>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
-            <div className="mt-4 pt-4 border-t flex justify-between items-center">
-              <span className="text-lg font-semibold">Total:</span>
-              <span className="text-2xl font-bold text-primary-600">
+            <div className="mt-6 pt-6 border-t-2 border-gray-200 flex justify-between items-center bg-gradient-to-r from-primary-50 to-white p-4 rounded-xl">
+              <span className="text-xl font-bold text-gray-800">Total:</span>
+              <span className="text-3xl font-black text-primary-600">
                 ${total.toLocaleString()}
               </span>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Formulario de Pedido */}
-        <div className="md:col-span-1">
-          <form onSubmit={handleSubmit} className="card space-y-4">
-            <h2 className="text-xl font-bold mb-4">Información del Pedido</h2>
+        <div className="lg:col-span-1">
+          <motion.form
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            onSubmit={handleSubmit}
+            className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 space-y-5 sticky top-6"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl">
+                <CalendarIcon className="w-6 h-6 text-white" />
+              </div>
+              <h2 className="text-2xl font-black text-gray-900">Información del Pedido</h2>
+            </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <CalendarIcon className="w-5 h-5 inline mr-1" />
+              <label className="block text-sm font-bold text-gray-800 mb-2 flex items-center gap-2">
+                <CalendarIcon className="w-5 h-5 text-primary-600" />
                 Fecha y Hora de Entrega
               </label>
               <input
                 type="datetime-local"
                 value={horaEntrega}
                 onChange={(e) => setHoraEntrega(e.target.value)}
-                className="input w-full"
+                className="input w-full border-2 border-gray-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 rounded-xl py-3 font-medium"
                 required
                 min={new Date().toISOString().slice(0, 16)}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <CreditCardIcon className="w-5 h-5 inline mr-1" />
+              <label className="block text-sm font-bold text-gray-800 mb-2 flex items-center gap-2">
+                <CreditCardIcon className="w-5 h-5 text-primary-600" />
                 Comprobante de Pago (Opcional)
               </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setComprobantePago(e.target.files[0])}
-                className="input w-full"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Puedes subir el comprobante después
-              </p>
+              <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-primary-400 hover:bg-primary-50/50 transition-all cursor-pointer group">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setComprobantePago(e.target.files[0])}
+                  className="hidden"
+                  id="comprobante-upload"
+                />
+                <label
+                  htmlFor="comprobante-upload"
+                  className="cursor-pointer block"
+                >
+                  {comprobantePago ? (
+                    <div className="space-y-2">
+                      <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-2">
+                        <CreditCardIcon className="w-8 h-8 text-green-600" />
+                      </div>
+                      <p className="text-sm text-green-600 font-bold">✓ Archivo seleccionado</p>
+                      <p className="text-xs text-gray-500 font-medium">{comprobantePago.name}</p>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setComprobantePago(null);
+                          document.getElementById('comprobante-upload').value = '';
+                        }}
+                        className="text-xs text-red-600 hover:text-red-700 font-semibold mt-2"
+                      >
+                        Cambiar archivo
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-primary-100 transition-colors">
+                        <CreditCardIcon className="w-8 h-8 text-gray-400 group-hover:text-primary-600 transition-colors" />
+                      </div>
+                      <p className="text-sm text-gray-700 font-semibold mb-1">Haz clic para seleccionar</p>
+                      <p className="text-xs text-gray-500">PNG, JPG hasta 5MB</p>
+                    </div>
+                  )}
+                </label>
+              </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-800 mb-2">
                 Notas Generales (Opcional)
               </label>
               <textarea
                 value={notasGenerales}
                 onChange={(e) => setNotasGenerales(e.target.value)}
-                className="input w-full"
-                rows="3"
+                className="input w-full border-2 border-gray-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 rounded-xl py-3 resize-none"
+                rows="4"
                 placeholder="Instrucciones especiales para todos los pedidos..."
               />
             </div>
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={createMutation.isLoading}
-              className="btn-primary w-full"
+              className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-4 rounded-xl font-black text-lg shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {createMutation.isLoading ? 'Procesando...' : `Confirmar ${items.length} Pedido(s)`}
-            </button>
-          </form>
+              {createMutation.isLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Procesando...
+                </>
+              ) : (
+                <>
+                  Confirmar {items.length} Pedido{items.length > 1 ? 's' : ''}
+                  <ArrowRightIcon className="w-5 h-5" />
+                </>
+              )}
+            </motion.button>
+          </motion.form>
         </div>
       </div>
     </div>

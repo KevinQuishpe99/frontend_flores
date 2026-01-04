@@ -61,28 +61,20 @@ export default function ImageUpload({ onImageSelect, currentImage, label = 'Imag
     setShowEditor(false);
     
     try {
-      // Comprimir la imagen editada antes de convertirla a File
-      const compressedDataUrl = await compressImageToDataUrl(editedImage, 1920, 1920, 0.85);
-      setPreview(compressedDataUrl);
-      
-      // Convertir data URL comprimida a File para enviarlo al servidor
-      const response = await fetch(compressedDataUrl);
-      const blob = await response.blob();
+      // Convertir data URL a File sin usar fetch (para evitar CSP)
+      const byteString = atob(editedImage.split(',')[1]);
+      const mimeString = editedImage.split(',')[0].split(':')[1].split(';')[0];
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      const blob = new Blob([ab], { type: mimeString });
       const file = new File([blob], 'imagen-editada.jpg', { type: 'image/jpeg' });
-      onImageSelect(file, compressedDataUrl);
+      onImageSelect(file, editedImage);
     } catch (err) {
       console.error('Error al procesar imagen editada:', err);
-      // Si falla, intentar sin compresión adicional
-      fetch(editedImage)
-        .then(res => res.blob())
-        .then(blob => {
-          const file = new File([blob], 'imagen-editada.jpg', { type: 'image/jpeg' });
-          onImageSelect(file, editedImage);
-        })
-        .catch(err => {
-          console.error('Error al convertir imagen:', err);
-          onImageSelect(null, editedImage);
-        });
+      onImageSelect(null, editedImage);
     }
   };
 
@@ -112,29 +104,29 @@ export default function ImageUpload({ onImageSelect, currentImage, label = 'Imag
 
       {displayImage ? (
         <div className="space-y-2">
-          <div className="relative group">
-            <div className="relative w-full h-64 rounded-lg overflow-hidden border-2 border-gray-300 shadow-md">
+          <div className="relative group flex justify-center">
+            <div className="relative w-48 h-32 rounded-lg overflow-hidden border-2 border-gray-300 shadow-md">
               <img
                 src={displayImage}
                 alt="Preview"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center gap-3">
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center gap-2">
                 <button
                   type="button"
                   onClick={handleEdit}
-                  className="opacity-0 group-hover:opacity-100 bg-white p-3 rounded-full hover:bg-gray-100 transition-all transform hover:scale-110 shadow-lg"
+                  className="opacity-0 group-hover:opacity-100 bg-white p-2 rounded-full hover:bg-gray-100 transition-all transform hover:scale-110 shadow-lg"
                   title="Editar imagen"
                 >
-                  <PencilIcon className="w-5 h-5 text-gray-700" />
+                  <PencilIcon className="w-4 h-4 text-gray-700" />
                 </button>
                 <button
                   type="button"
                   onClick={handleRemove}
-                  className="opacity-0 group-hover:opacity-100 bg-red-500 p-3 rounded-full hover:bg-red-600 transition-all transform hover:scale-110 shadow-lg"
+                  className="opacity-0 group-hover:opacity-100 bg-red-500 p-2 rounded-full hover:bg-red-600 transition-all transform hover:scale-110 shadow-lg"
                   title="Eliminar imagen"
                 >
-                  <XMarkIcon className="w-5 h-5 text-white" />
+                  <XMarkIcon className="w-4 h-4 text-white" />
                 </button>
               </div>
             </div>
@@ -146,7 +138,7 @@ export default function ImageUpload({ onImageSelect, currentImage, label = 'Imag
               className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
             >
               <PencilIcon className="w-4 h-4" />
-              Editar imagen
+              Editar
             </button>
             <span className="text-gray-300">|</span>
             <button
@@ -154,11 +146,11 @@ export default function ImageUpload({ onImageSelect, currentImage, label = 'Imag
               onClick={() => fileInputRef.current?.click()}
               className="text-sm text-gray-600 hover:text-gray-700 font-medium"
             >
-              Cambiar imagen
+              Cambiar
             </button>
           </div>
           <p className="text-xs text-gray-500 text-center">
-            La imagen se cargará al servidor cuando guardes el formulario
+            La imagen se cargará al guardar
           </p>
         </div>
       ) : (

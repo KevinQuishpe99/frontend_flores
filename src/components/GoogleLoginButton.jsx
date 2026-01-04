@@ -13,16 +13,32 @@ export default function GoogleLoginButton() {
       try {
         const response = await googleLogin(tokenResponse.access_token);
         
+        // Verificar que los datos del usuario estén presentes
+        if (!response.user) {
+          toast.error('Error: No se recibieron datos del usuario');
+          console.error('Respuesta sin datos de usuario:', response);
+          return;
+        }
+        
+        // Log para debugging
+        console.log('Datos del usuario de Google:', {
+          nombre: response.user.nombre,
+          apellido: response.user.apellido,
+          email: response.user.email,
+          imagen: response.user.imagen,
+          tieneImagen: !!response.user.imagen
+        });
+        
         // Si requiere teléfono, redirigir al perfil
         if (response.requiereTelefono) {
           setAuth(response.user, response.token);
-          toast.error('Por favor, completa tu número de teléfono en tu perfil');
+          toast.info('Por favor, completa tu número de teléfono en tu perfil');
           navigate('/perfil');
           return;
         }
         
         setAuth(response.user, response.token);
-        toast.success(`¡Bienvenido, ${response.user.nombre}!`);
+        toast.success(`¡Bienvenido, ${response.user.nombre || 'Usuario'}!`);
         
         if (response.user.rol === 'ADMIN') {
           navigate('/admin/usuarios');
@@ -35,7 +51,10 @@ export default function GoogleLoginButton() {
         }
       } catch (error) {
         toast.error(error.response?.data?.error || 'Error al iniciar sesión con Google');
-        console.error(error);
+        console.error('Error completo en Google login:', error);
+        if (error.response) {
+          console.error('Respuesta del servidor:', error.response.data);
+        }
       }
     },
     onError: () => {
