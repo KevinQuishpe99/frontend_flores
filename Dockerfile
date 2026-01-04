@@ -9,7 +9,7 @@ COPY .env* ./
 
 # Argumentos de build (usados si no hay .env)
 # Valor por defecto para producción, se sobrescribe en desarrollo
-ARG VITE_API_URL=https://api.flowerspaulas.com/api
+ARG VITE_API_URL=https://backend-flores-mcsf.onrender.com/api
 ENV VITE_API_URL=$VITE_API_URL
 ARG VITE_GOOGLE_CLIENT_ID
 ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
